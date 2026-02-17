@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import ParkingLotCard from "@/components/ParkingLotCard";
 import BookingModal from "@/components/BookingModal";
 import MyBookings from "@/components/MyBookings";
+import ComplaintModal from "@/components/ComplaintModal";
 
 interface ParkingLot {
   id: string;
@@ -59,6 +60,7 @@ const Dashboard = () => {
   const [bookedSlotIds, setBookedSlotIds] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<"lots" | "bookings">("lots");
   const [loading, setLoading] = useState(true);
+  const [complaintTarget, setComplaintTarget] = useState<{ bookingId: string; slotInfo: string } | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -204,7 +206,11 @@ const Dashboard = () => {
             ))}
           </motion.div>
         ) : (
-          <MyBookings bookings={bookings} onCancel={handleCancel} />
+          <MyBookings
+            bookings={bookings}
+            onCancel={handleCancel}
+            onComplain={(bookingId, slotInfo) => setComplaintTarget({ bookingId, slotInfo })}
+          />
         )}
       </div>
 
@@ -214,6 +220,28 @@ const Dashboard = () => {
           lot={selectedLot}
           onClose={() => setSelectedSlot(null)}
           onBook={handleBook}
+        />
+      )}
+
+      {complaintTarget && (
+        <ComplaintModal
+          bookingId={complaintTarget.bookingId}
+          slotInfo={complaintTarget.slotInfo}
+          onClose={() => setComplaintTarget(null)}
+          onSubmit={async (bookingId, description) => {
+            if (!user) return;
+            const { error } = await supabase.from("complaints").insert({
+              booking_id: bookingId,
+              user_id: user.id,
+              description,
+            });
+            if (error) {
+              toast({ title: "Error", description: error.message, variant: "destructive" });
+            } else {
+              toast({ title: "Complaint Submitted", description: "We'll look into your issue shortly." });
+              setComplaintTarget(null);
+            }
+          }}
         />
       )}
     </div>
