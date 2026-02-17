@@ -58,6 +58,41 @@ export type Database = {
           },
         ]
       }
+      complaints: {
+        Row: {
+          booking_id: string
+          created_at: string
+          description: string
+          id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          description: string
+          id?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "complaints_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       parking_lots: {
         Row: {
           address: string

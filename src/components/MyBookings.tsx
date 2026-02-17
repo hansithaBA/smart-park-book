@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Clock, X } from "lucide-react";
+import { Calendar, MapPin, Clock, X, AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 
@@ -27,9 +27,10 @@ interface Booking {
 interface Props {
   bookings: Booking[];
   onCancel: (id: string) => void;
+  onComplain: (bookingId: string, slotInfo: string) => void;
 }
 
-const MyBookings = ({ bookings, onCancel }: Props) => {
+const MyBookings = ({ bookings, onCancel, onComplain }: Props) => {
   if (bookings.length === 0) {
     return (
       <div className="text-center py-20">
@@ -82,14 +83,24 @@ const MyBookings = ({ bookings, onCancel }: Props) => {
             </span>
           </div>
 
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => onCancel(b.id)}
-            className="gap-1"
-          >
-            <X className="w-3.5 h-3.5" /> Cancel Booking
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => onCancel(b.id)}
+              className="gap-1"
+            >
+              <X className="w-3.5 h-3.5" /> Cancel Booking
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onComplain(b.id, `Slot ${b.parking_slots?.slot_number} - ${b.parking_slots?.parking_lots?.name}`)}
+              className="gap-1 border-destructive/30 text-destructive hover:bg-destructive/10"
+            >
+              <AlertTriangle className="w-3.5 h-3.5" /> Report Issue
+            </Button>
+          </div>
         </motion.div>
       ))}
     </div>
